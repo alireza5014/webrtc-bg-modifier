@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <link href="styles.css" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebRTC Background Replacement</title>
+</head>
+<body>
+<video id="output" autoplay playsinline></video>
+
+<div class="optionBox">
+
+
+    <div class="slider-container">
+        <label for="contrastRange">Contrast</label>
+        <input type="range" id="contrastRange" min="0.5" max="2" step="0.1" value="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="brightnessRange">Brightness</label>
+        <input type="range" id="brightnessRange" min="0.5" max="2" step="0.1" value="1">
+    </div>
+
+    <label class="switch">
+        <input type="checkbox" id="grayScaleSwitch">
+        <span class="slider"></span>
+    </label>
+    <span>  grayScale</span>
+</div>
+
+<div id="bg-list" style="display: flex"></div>
+<script type="module" src="scripts.js"></script>
+
+</body>
+</html>

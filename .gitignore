@@ -1,0 +1,35 @@
+# Node modules
+/node_modules/
+
+# Build output
+/dist/
+/build/
+
+# Logs
+*.log
+
+# Dependency directories
+/.npm/
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE and editor folders
+/.idea/
+/.vscode/
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Package-lock
+/package-lock.json
+
+# Coverage reports
+/coverage/
+
+# Temporary files
+*.tmp
+*.swp
