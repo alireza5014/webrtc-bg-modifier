@@ -16,7 +16,7 @@
 ```bash
 npm install webrtc-bg-modifier
 ```
-![Screenshot](example/screenshot.png)
+![Screenshot](https://raw.githubusercontent.com/alireza5014/webrtc-bg-modifier/refs/heads/main/example/screenshot.png)
 ## Usage
 
 ### Importing the Class
