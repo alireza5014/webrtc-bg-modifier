@@ -84,7 +84,9 @@ class WebrtcBgModifier {
 
     // Handles background image replacement logic
     applyBackgroundImage(ctx, results) {
-        const {videoWidth: width, videoHeight: height} = this.videoElement;
+        // const {videoWidth: width, videoHeight: height} = this.videoElement;
+        const  width=480
+        const  height=360
         ctx.clearRect(0, 0, width, height);
         ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
 
@@ -106,7 +108,9 @@ class WebrtcBgModifier {
 
     // Applies a solid background color
     applyBackgroundColor(ctx, results) {
-        const {videoWidth: width, videoHeight: height} = this.videoElement;
+        // const {videoWidth: width, videoHeight: height} = this.videoElement;
+     const  width=480
+        const  height=360
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         ctx.globalCompositeOperation = 'source-out';
@@ -162,20 +166,18 @@ class WebrtcBgModifier {
                     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
                     if (isMobile) {
-                        this.segmentation.setOptions({
-                            modelSelection: 0, // Lightweight model for mobile
-                        });
 
                         this.videoElement.width = 480;
                         this.videoElement.height = 360;
                     } else {
-                        this.segmentation.setOptions({
-                            modelSelection: 1, // Full model for desktops
-                        });
+
 
                         this.videoElement.width = 1280;
                         this.videoElement.height = 720;
                     }
+                    this.segmentation.setOptions({
+                        modelSelection: isMobile?0:1, // Full model for desktops
+                    });
 
                     // this.segmentation.setOptions({
                     //     selfieMode: true,
