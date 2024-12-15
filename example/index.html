@@ -5,6 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WebRTC Background Replacement</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+
 </head>
 <body>
 <video id="output" autoplay playsinline></video>
@@ -35,80 +37,6 @@
 </div>
 
 <div id="bg-list" style="display: flex"></div>
-
-
-
-
-<video id="video1" width="640" height="480" autoplay></video>
-<canvas id="outputCanvas" width="640" height="480"></canvas>
-
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
-<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
-<script>
-    const videoElement = document.getElementById('video1');
-    const canvas = document.getElementById('outputCanvas');
-    const ctx = canvas.getContext('2d');
-
-    // Function to set up the webcam stream
-    async function setupWebcam() {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: { facingMode: 'user' }
-        });
-        videoElement.srcObject = stream;
-    }
-
-    // Function to load BodyPix model and process the video
-    async function loadAndRunBodyPix() {
-        const net = await bodyPix.load({
-            modelSelection: 1,  // Use higher quality model
-            internalResolution: 'medium', // For mobile-friendly performance
-            segmentationThreshold: 0.7
-        });
-        console.log("BodyPix model loaded.");
-
-        // Load the custom background image
-        const customBackground = new Image();
-        customBackground.src = './img/1.jpg'; // Replace with your background path
-
-        customBackground.onload = () => {
-            // Start processing the video stream once the background is loaded
-            processFrame(net, customBackground);
-        };
-    }
-
-    // Function to process each video frame and replace the background
-    async function processFrame(net, customBackground) {
-        const segmentation = await net.segmentPerson(videoElement);
-
-        // Create a mask based on the segmentation
-        const mask = bodyPix.toMask(segmentation);
-
-        ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear previous frame
-
-        // Apply the mask and person from video to canvas
-        ctx.putImageData(mask, 0, 0);
-        ctx.globalCompositeOperation = 'source-in'; // Keep person and mask the background
-        ctx.drawImage(videoElement, 0, 0);
-
-        // Draw the custom background (behind the person)
-        ctx.globalCompositeOperation = 'destination-over'; // Put the background behind
-        ctx.drawImage(customBackground, 0, 0, canvas.width, canvas.height);
-
-        // Continue processing next frame
-        requestAnimationFrame(() => processFrame(net, customBackground));
-    }
-
-    // Initialize everything
-    setupWebcam().then(() => {
-        loadAndRunBodyPix();
-    });
-
-</script>
-
-
-
-
-<!--<script type="module" src="scripts.js"></script>-->
-
+<script type="module" src="scripts.js"></script>
 </body>
 </html>

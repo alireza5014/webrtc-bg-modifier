@@ -3,6 +3,8 @@ class WebrtcBgModifier {
         this.scriptLoaded = false;
         this.segmentation = null;
         this.url = null;
+        this.camera = null;
+        this.backgroundImage = null;
         this.color = null;
         this.stream = null;
         this.brightness = 1;
@@ -14,6 +16,14 @@ class WebrtcBgModifier {
     }
 
     // Setters for background properties
+    setBackgroundImage2(value) {
+        this.backgroundImage = value;
+        return this;
+    }
+
+    getBackgroundImage() {
+        return  this.backgroundImage
+     }
     setBrightness(value) {
         this.brightness = +value;
         return this;
@@ -46,6 +56,7 @@ class WebrtcBgModifier {
 
     setBackgroundColor(color) {
         this.color = color;
+
         return this;
     }
 
@@ -72,7 +83,7 @@ class WebrtcBgModifier {
     }
 
     // Handles background image replacement logic
-    applyBackgroundImage(ctx, results, backgroundImage) {
+    applyBackgroundImage(ctx, results) {
         const {videoWidth: width, videoHeight: height} = this.videoElement;
         ctx.clearRect(0, 0, width, height);
         ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
@@ -80,11 +91,12 @@ class WebrtcBgModifier {
         ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         ctx.globalCompositeOperation = 'source-out';
 
-        ctx.drawImage(backgroundImage ? backgroundImage : this.videoElement, 0, 0, width, height);
+        ctx.drawImage(this.getBackgroundImage() ? this.getBackgroundImage() : this.videoElement, 0, 0, width, height);
         ctx.globalCompositeOperation = 'destination-atop';
 
         ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
         ctx.drawImage(results.image, 0, 0, width, height);
+
     }
 
     // Adjusts brightness and contrast for the video
@@ -137,54 +149,77 @@ class WebrtcBgModifier {
     }
 
     // Initializes the segmentation process
-    async setupSegmentation(ctx, backgroundImage) {
+    async setupSegmentation(ctx) {
+       const backgroundImage= this.getBackgroundImage()
         await this.appendScriptToHead('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js', {
             async: true,
             callback: async () => {
-                if(this.segmentation){
-                    this.segmentation.close()
-                    this.segmentation=null
-                }
+                if (!this.segmentation) {
                     this.segmentation = new SelfieSegmentation({
-                        locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
-                        // locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
+                        // locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
+                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
                     });
 
 
-                this.segmentation.setOptions({modelSelection: 1});
+                    this.segmentation.setOptions({
+                        // selfieMode: true,
+                        modelSelection: 1,
+                        // effect: "background"
+                    });
 
-                this.segmentation.onResults((results) => {
-                    if (this.color) {
-                        this.applyBackgroundColor(ctx, results);
-                        this.applyBrightnessAndContrast(ctx);
-                    } else {
-                        this.applyBackgroundImage(ctx, results, backgroundImage);
-                    }
+                    this.segmentation.onResults((results) => {
+                        // console.log(results)
+                        if (this.color) {
+                            this.applyBackgroundColor(ctx, results);
+                            this.applyBrightnessAndContrast(ctx);
+                        } else {
+                            this.applyBackgroundImage(ctx, results, backgroundImage);
 
-                    if (this.grayScale) {
-                        this.applyGrayscale(ctx);
-                    }
-                    // this.applyBrightnessAndContrast(ctx);
-                });
+                        }
 
-                await  this.segmentation.initialize();
+                        if (this.grayScale) {
+                            this.applyGrayscale(ctx);
+                        }
+                        // this.applyBrightnessAndContrast(ctx);
+                    });
 
-                const processVideo = async () => {
-                    await  this.segmentation.send({image: this.videoElement});
-                    requestAnimationFrame(processVideo);
-                };
 
-                await processVideo();
+
+                    // await this.segmentation.initialize();
+                    //
+                    // const processVideo = async () => {
+                    //     await this.segmentation.send({image: this.videoElement});
+                    //     requestAnimationFrame(processVideo);
+                    // };
+                    //
+                    // await processVideo();
+                }
+                if (!this.camera) {
+                    this.camera = new Camera(this.videoElement, {
+                        onFrame: async () => {
+                            await this.segmentation.send({ image: this.videoElement });
+                        },
+                        width: 1280,
+                        height: 720,
+                    });
+                }
+
+                this.camera.start();
             },
         });
     }
 
     // Main function to modify the video stream
     async changeBackground() {
-        this.videoElement.srcObject = this.stream;
-        this.videoElement.play();
 
-        await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
+        console.log(  this.url,'11111')
+        if(!this.videoElement.srcObject) {
+            this.videoElement.srcObject = this.stream;
+            this.videoElement.play();
+            await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
+
+        }
+
 
         const {videoWidth: width, videoHeight: height} = this.videoElement;
         this.canvasElement.width = width;
@@ -192,18 +227,23 @@ class WebrtcBgModifier {
         const ctx = this.canvasElement.getContext('2d');
 
         if (!this.url && !this.grayScale && this.brightness === 1 && this.contrast === 1 && !this.color && !this.blur) {
+
+                this.camera?.stop()
+
             return this.stream; // No modifications, return original stream
         }
 
         let backgroundImage = null;
         if (this.url) {
-            backgroundImage = new Image();
+              backgroundImage = new Image();
             backgroundImage.src = this.url;
-            await new Promise((resolve) => (backgroundImage.onload = resolve));
-        }
+             await new Promise((resolve) => (backgroundImage.onload = resolve));
+            this.setBackgroundImage2(backgroundImage)
 
-        await this.setupSegmentation(ctx, backgroundImage);
-        return this.canvasElement.captureStream(30);
+        }
+        this.setBackgroundImage2(backgroundImage)
+        await this.setupSegmentation(ctx);
+        return  this.canvasElement.captureStream(24);
     }
 }
 

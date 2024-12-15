@@ -7,6 +7,7 @@ outputVideo.play();
 import WebrtcBgModifier from "../dist/index.module.js";
 const bgModifier = new WebrtcBgModifier();
 document.getElementById('brightnessRange').addEventListener('change', async function () {
+    console.log(bgModifier,"bgModifier")
     const value = this.value;
     outputVideo.srcObject = await bgModifier.setBackgroundImage(bgUrl).setBrightness(value).setStream(stream).changeBackground();
 });

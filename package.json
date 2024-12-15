@@ -11,13 +11,13 @@
     "dev": "microbundle watch",
     "test": "jest"
   },
-  "type": "module",
   "author": "Alireza Heidari",
   "license": "MIT",
   "dependencies": {
     "@babel/core": "^7.24.5",
     "@babel/preset-env": "^7.24.5",
-    "@mediapipe/selfie_segmentation": "^0.1.1675465747",
+    "@mediapipe/selfie_segmentation": "^0.1.1632777926",
+    "@mediapipe/camera_utils": "^0.3.1632432234",
     "babel-jest": "^29.7.0",
     "esm": "^3.2.25",
     "jest": "^29.7.0",
