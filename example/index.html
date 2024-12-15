@@ -71,9 +71,11 @@
             // Process each frame
             const processFrame = async () => {
                 const segmentation = await net.segmentPerson(videoElement,{
+                    modelSelection: 0,  // Use a faster model (0 is faster than 1)
+                    outputStride: 8,    // Lower output stride for faster results, though this reduces detail
                     flipHorizontal: false,
-                    internalResolution: 'low',
-                    segmentationThreshold: 0.7
+                    internalResolution: 'medium', // Reduces resolution to improve performance
+                    segmentationThreshold: 0.7 // Set a threshold for segmentation to optimize
                 });
 
                 // Create an image mask from the segmentation
