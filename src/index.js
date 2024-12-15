@@ -187,13 +187,29 @@ class WebrtcBgModifier {
 
 
                     await this.segmentation.initialize();
+                    //
+                    // const processVideo = async () => {
+                    //     await this.segmentation.send({image: this.videoElement});
+                    //     requestAnimationFrame(processVideo);
+                    // };
+                    //
+                    // await processVideo();
+
 
                     const processVideo = async () => {
-                        await this.segmentation.send({image: this.videoElement});
-                        requestAnimationFrame(processVideo);
+                        const start = performance.now();
+                        await this.segmentation.send({ image: this.videoElement });
+
+                        // Calculate the remaining time to maintain a 24 FPS rate
+                        const elapsed = performance.now() - start;
+                        const delay = Math.max(0, (1000 / 24) - elapsed);
+
+                        setTimeout(() => requestAnimationFrame(processVideo), delay);
                     };
 
                     await processVideo();
+
+
                 }
                 // if (!this.camera) {
                 //     this.camera = new Camera(this.videoElement, {
