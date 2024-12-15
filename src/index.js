@@ -162,13 +162,14 @@ class WebrtcBgModifier {
 
 
                     this.segmentation.setOptions({
-                        // selfieMode: true,
-                        modelSelection: 1,
+                        selfieMode: true,
+                        modelSelection: 0,
+
                         // effect: "background"
                     });
 
                     this.segmentation.onResults((results) => {
-                        // console.log(results)
+                        console.log(results)
                         if (this.color) {
                             this.applyBackgroundColor(ctx, results);
                             this.applyBrightnessAndContrast(ctx);
