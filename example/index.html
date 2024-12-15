@@ -48,8 +48,9 @@
 <script >
     const videoElement = document.getElementById('video1');
     const canvas = document.getElementById('output1');
-    const ctx = canvas.getContext('2d');
-
+    const ctx = canvas.getContext('webgl', {
+        preserveDrawingBuffer: true  // Helps to keep the rendered image intact for later processing
+    });
     async function setupWebcam() {
         const stream = await navigator.mediaDevices.getUserMedia({
             video: true
