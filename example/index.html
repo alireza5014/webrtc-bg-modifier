@@ -48,9 +48,8 @@
 <script >
     const videoElement = document.getElementById('video1');
     const canvas = document.getElementById('output1');
-    const ctx = canvas.getContext('webgl', {
-        preserveDrawingBuffer: true  // Helps to keep the rendered image intact for later processing
-    });
+    const ctx = canvas.getContext('2d');
+
     async function setupWebcam() {
         const stream = await navigator.mediaDevices.getUserMedia({
             video: true
@@ -60,6 +59,7 @@
 
     // Apply custom background after segmentation
     async function loadAndRunBodyPix() {
+        await tf.setBackend('webgl');
         const net = await bodyPix.load();
         console.log("BodyPix model loaded.");
 
