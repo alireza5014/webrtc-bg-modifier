@@ -185,26 +185,26 @@ class WebrtcBgModifier {
 
 
 
-                    // await this.segmentation.initialize();
-                    //
-                    // const processVideo = async () => {
-                    //     await this.segmentation.send({image: this.videoElement});
-                    //     requestAnimationFrame(processVideo);
-                    // };
-                    //
-                    // await processVideo();
-                }
-                if (!this.camera) {
-                    this.camera = new Camera(this.videoElement, {
-                        onFrame: async () => {
-                            await this.segmentation.send({ image: this.videoElement });
-                        },
-                        width: 1280,
-                        height: 720,
-                    });
-                }
+                    await this.segmentation.initialize();
 
-                this.camera.start();
+                    const processVideo = async () => {
+                        await this.segmentation.send({image: this.videoElement});
+                        requestAnimationFrame(processVideo);
+                    };
+
+                    await processVideo();
+                }
+                // if (!this.camera) {
+                //     this.camera = new Camera(this.videoElement, {
+                //         onFrame: async () => {
+                //             await this.segmentation.send({ image: this.videoElement });
+                //         },
+                //         width: 1280,
+                //         height: 720,
+                //     });
+                // }
+                //
+                // this.camera.start();
             },
         });
     }
