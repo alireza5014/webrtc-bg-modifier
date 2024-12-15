@@ -39,74 +39,70 @@
 
 
 
-
 <video id="video1" width="640" height="480" autoplay></video>
-<canvas id="output1" width="640" height="480"></canvas>
+<canvas id="outputCanvas" width="640" height="480"></canvas>
 
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
 <script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
-<script >
+<script>
     const videoElement = document.getElementById('video1');
-    const canvas = document.getElementById('output1');
+    const canvas = document.getElementById('outputCanvas');
     const ctx = canvas.getContext('2d');
 
+    // Function to set up the webcam stream
     async function setupWebcam() {
         const stream = await navigator.mediaDevices.getUserMedia({
-            video: true
+            video: { facingMode: 'user' }
         });
         videoElement.srcObject = stream;
     }
 
-    // Apply custom background after segmentation
+    // Function to load BodyPix model and process the video
     async function loadAndRunBodyPix() {
-        await tf.setBackend('webgl');
-        const net = await bodyPix.load();
+        const net = await bodyPix.load({
+            modelSelection: 1,  // Use higher quality model
+            internalResolution: 'medium', // For mobile-friendly performance
+            segmentationThreshold: 0.7
+        });
         console.log("BodyPix model loaded.");
 
         // Load the custom background image
         const customBackground = new Image();
-        customBackground.src = './img/1.jpg'; // Ensure the path is correct
+        customBackground.src = './img/1.jpg'; // Replace with your background path
 
-        customBackground.onload = async () => {
-            // Process each frame
-            const processFrame = async () => {
-                const segmentation = await net.segmentPerson(videoElement,{
-                    modelSelection: 0,  // Use a faster model (0 is faster than 1)
-                    outputStride: 8,    // Lower output stride for faster results, though this reduces detail
-                    flipHorizontal: false,
-                    internalResolution: 'medium', // Reduces resolution to improve performance
-                    segmentationThreshold: 0.7 // Set a threshold for segmentation to optimize
-                });
-
-                // Create an image mask from the segmentation
-                const mask = bodyPix.toMask(segmentation);
-                ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-                // Set the filter for contrast, brightness, and blur
-
-                // Apply the mask to the canvas, keeping the person in the foreground
-
-                ctx.putImageData(mask, 0, 0);
-                //  ctx.drawImage(videoElement, 0, 0);
-                // // Apply the custom background
-                // ctx.globalCompositeOperation = 'destination-over'; // Draw the background behind the person
-                // ctx.drawImage(customBackground, 0, 0, canvas.width, canvas.height);
-
-
-                // ctx.filter = `brightness(1) contrast(2) blur(20px)`;
-
-                // Continue processing the next frame
-                requestAnimationFrame(processFrame);
-            };
-
-            processFrame();
+        customBackground.onload = () => {
+            // Start processing the video stream once the background is loaded
+            processFrame(net, customBackground);
         };
+    }
+
+    // Function to process each video frame and replace the background
+    async function processFrame(net, customBackground) {
+        const segmentation = await net.segmentPerson(videoElement);
+
+        // Create a mask based on the segmentation
+        const mask = bodyPix.toMask(segmentation);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);  // Clear previous frame
+
+        // Apply the mask and person from video to canvas
+        ctx.putImageData(mask, 0, 0);
+        ctx.globalCompositeOperation = 'source-in'; // Keep person and mask the background
+        ctx.drawImage(videoElement, 0, 0);
+
+        // Draw the custom background (behind the person)
+        ctx.globalCompositeOperation = 'destination-over'; // Put the background behind
+        ctx.drawImage(customBackground, 0, 0, canvas.width, canvas.height);
+
+        // Continue processing next frame
+        requestAnimationFrame(() => processFrame(net, customBackground));
     }
 
     // Initialize everything
     setupWebcam().then(() => {
         loadAndRunBodyPix();
     });
+
 </script>
 
 
