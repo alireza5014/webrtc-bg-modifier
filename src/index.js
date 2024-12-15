@@ -203,7 +203,7 @@ class WebrtcBgModifier {
 
 
 
-                    const targetFPS = 2;
+                    const targetFPS = 5;
                     let lastFrameTime = 0;
 
                     const processVideo = async () => {
