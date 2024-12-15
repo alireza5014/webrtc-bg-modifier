@@ -1,6 +1,7 @@
 class WebrtcBgModifier {
     constructor() {
         this.scriptLoaded = false;
+        this.segmentation = null;
         this.url = null;
         this.color = null;
         this.stream = null;
@@ -140,14 +141,17 @@ class WebrtcBgModifier {
         await this.appendScriptToHead('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js', {
             async: true,
             callback: async () => {
-                const segmentation = new SelfieSegmentation({
-                    // locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
-                    locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
-                });
+                if(! this.segmentation){
+                    this.segmentation = new SelfieSegmentation({
+                        // locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
+                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
+                    });
+                }
 
-                segmentation.setOptions({modelSelection: 1});
 
-                segmentation.onResults((results) => {
+                this.segmentation.setOptions({modelSelection: 1});
+
+                this.segmentation.onResults((results) => {
                     if (this.color) {
                         this.applyBackgroundColor(ctx, results);
                         this.applyBrightnessAndContrast(ctx);
@@ -161,10 +165,10 @@ class WebrtcBgModifier {
                     // this.applyBrightnessAndContrast(ctx);
                 });
 
-                await segmentation.initialize();
+                await  this.segmentation.initialize();
 
                 const processVideo = async () => {
-                    await segmentation.send({image: this.videoElement});
+                    await  this.segmentation.send({image: this.videoElement});
                     requestAnimationFrame(processVideo);
                 };
 

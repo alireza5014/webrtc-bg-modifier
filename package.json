@@ -1,6 +1,6 @@
 {
   "name": "webrtc-bg-modifier",
-  "version": "1.0.10",
+  "version": "1.0.12",
   "source": "src/index.js",
   "main": "dist/index.js",
   "module": "dist/index.module.js",
@@ -11,6 +11,7 @@
     "dev": "microbundle watch",
     "test": "jest"
   },
+
   "type": "module",
   "author": "Alireza Heidari",
   "license": "MIT",
