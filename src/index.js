@@ -159,14 +159,30 @@ class WebrtcBgModifier {
                         // locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
                         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
                     });
+                    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
+                    if (isMobile) {
+                        this.segmentation.setOptions({
+                            modelSelection: 0, // Lightweight model for mobile
+                        });
 
-                    this.segmentation.setOptions({
-                        selfieMode: true,
-                        modelSelection: 0,
+                        this.videoElement.width = 480;
+                        this.videoElement.height = 360;
+                    } else {
+                        this.segmentation.setOptions({
+                            modelSelection: 1, // Full model for desktops
+                        });
 
-                        // effect: "background"
-                    });
+                        this.videoElement.width = 1280;
+                        this.videoElement.height = 720;
+                    }
+
+                    // this.segmentation.setOptions({
+                    //     selfieMode: true,
+                    //     modelSelection: 0,
+                    //
+                    //     // effect: "background"
+                    // });
 
                     this.segmentation.onResults((results) => {
                         console.log(results)
@@ -186,7 +202,25 @@ class WebrtcBgModifier {
 
 
 
-                    await this.segmentation.initialize();
+
+                    const targetFPS = 15;
+                    let lastFrameTime = 0;
+
+                    const processVideo = async () => {
+                        const now = performance.now();
+                        if (now - lastFrameTime >= 1000 / targetFPS) {
+                            lastFrameTime = now;
+                            await this.segmentation.send({ image: this.videoElement });
+                        }
+
+                        requestAnimationFrame(processVideo);
+                    };
+
+                    await processVideo();
+
+
+
+                    // await this.segmentation.initialize();
                     //
                     // const processVideo = async () => {
                     //     await this.segmentation.send({image: this.videoElement});
@@ -194,22 +228,6 @@ class WebrtcBgModifier {
                     // };
                     //
                     // await processVideo();
-
-
-                    const processVideo = async () => {
-                        const start = performance.now();
-                        await this.segmentation.send({ image: this.videoElement });
-
-                        // Calculate the remaining time to maintain a 24 FPS rate
-                        const elapsed = performance.now() - start;
-                        const delay = Math.max(0, (1000 / 24) - elapsed);
-
-                        setTimeout(() => requestAnimationFrame(processVideo), delay);
-                    };
-
-                    await processVideo();
-
-
                 }
                 // if (!this.camera) {
                 //     this.camera = new Camera(this.videoElement, {
