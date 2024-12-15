@@ -1,7 +1,12 @@
 let bgUrl = null
 let newStream = null
 const outputVideo = document.getElementById("output");
-const stream = await navigator.mediaDevices.getUserMedia({video: true});
+const stream = await navigator.mediaDevices.getUserMedia({
+    video: {
+        width: { ideal: 640 },  // Lower resolution for mobile
+        height: { ideal: 480 },
+    },
+});
 outputVideo.srcObject = stream
 outputVideo.play();
 import WebrtcBgModifier from "../dist/index.module.js";
