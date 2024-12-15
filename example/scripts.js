@@ -5,6 +5,7 @@ const stream = await navigator.mediaDevices.getUserMedia({
     video: {
         width: { ideal: 640 },  // Lower resolution for mobile
         height: { ideal: 480 },
+        frameRate: { max: 24 }
     },
 });
 outputVideo.srcObject = stream

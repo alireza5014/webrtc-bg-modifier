@@ -165,6 +165,11 @@ class WebrtcBgModifier {
                     });
                     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
+                    alert(navigator.hardwareConcurrency)
+
+                    if (navigator.hardwareConcurrency < 4) {
+                         // Reduce segmentation resolution or frame rate for low-end devices
+                    }
                     if (isMobile) {
 
                         this.videoElement.width = 480;
