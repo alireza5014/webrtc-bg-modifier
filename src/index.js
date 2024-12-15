@@ -141,12 +141,14 @@ class WebrtcBgModifier {
         await this.appendScriptToHead('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js', {
             async: true,
             callback: async () => {
-                if(! this.segmentation){
-                    this.segmentation = new SelfieSegmentation({
-                        // locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
-                        locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
-                    });
+                if(this.segmentation){
+                    this.segmentation.close()
+                    this.segmentation=null
                 }
+                    this.segmentation = new SelfieSegmentation({
+                        locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
+                        // locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
+                    });
 
 
                 this.segmentation.setOptions({modelSelection: 1});

@@ -4,7 +4,8 @@ const outputVideo = document.getElementById("output");
 const stream = await navigator.mediaDevices.getUserMedia({video: true});
 outputVideo.srcObject = stream
 outputVideo.play();
-
+import WebrtcBgModifier from "../dist/index.module.js";
+const bgModifier = new WebrtcBgModifier();
 document.getElementById('brightnessRange').addEventListener('change', async function () {
     const value = this.value;
     outputVideo.srcObject = await bgModifier.setBackgroundImage(bgUrl).setBrightness(value).setStream(stream).changeBackground();
@@ -27,9 +28,7 @@ document.getElementById('grayScaleSwitch').addEventListener('change', async func
 // Get the webcam video stream
 
 
-import WebrtcBgModifier from "../dist/index.module.js";
 
-const bgModifier = new WebrtcBgModifier();
 window.changeBg = async function (url) {
     bgUrl = url;
     newStream = await bgModifier.setBackgroundImage(url).setStream(stream).changeBackground();

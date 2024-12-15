@@ -35,7 +35,83 @@
 </div>
 
 <div id="bg-list" style="display: flex"></div>
-<script type="module" src="scripts.js"></script>
+
+
+
+
+
+<video id="video1" width="640" height="480" autoplay></video>
+<canvas id="output1" width="640" height="480"></canvas>
+
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs"></script>
+<script src="https://cdn.jsdelivr.net/npm/@tensorflow-models/body-pix"></script>
+<script >
+    const videoElement = document.getElementById('video1');
+    const canvas = document.getElementById('output1');
+    const ctx = canvas.getContext('2d');
+
+    async function setupWebcam() {
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: true
+        });
+        videoElement.srcObject = stream;
+    }
+
+    // Apply custom background after segmentation
+    async function loadAndRunBodyPix() {
+        const net = await bodyPix.load();
+        console.log("BodyPix model loaded.");
+
+        // Load the custom background image
+        const customBackground = new Image();
+        customBackground.src = './img/1.jpg'; // Ensure the path is correct
+
+        customBackground.onload = async () => {
+            // Process each frame
+            const processFrame = async () => {
+                const segmentation = await net.segmentPerson(videoElement,{
+                    flipHorizontal: true, // Adjust if the video is mirrored (for webcams)
+                    internalResolution: 'high', // Set resolution to 'high' for better accuracy
+                    segmentationThreshold: 0.5 ,// Confidence threshold for segmentation
+                    maxDetections: 1,                  // Limits how many people to detect at once, set to 1 for single person
+                    scoreThreshold: 0.5
+                });
+
+                // Create an image mask from the segmentation
+                const mask = bodyPix.toMask(segmentation);
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Set the filter for contrast, brightness, and blur
+
+                // Apply the mask to the canvas, keeping the person in the foreground
+
+                ctx.putImageData(mask, 0, 0);
+                 ctx.drawImage(videoElement, 0, 0);
+                // Apply the custom background
+                ctx.globalCompositeOperation = 'destination-over'; // Draw the background behind the person
+                ctx.drawImage(customBackground, 0, 0, canvas.width, canvas.height);
+
+
+                // ctx.filter = `brightness(1) contrast(2) blur(20px)`;
+
+                // Continue processing the next frame
+                requestAnimationFrame(processFrame);
+            };
+
+            processFrame();
+        };
+    }
+
+    // Initialize everything
+    setupWebcam().then(() => {
+        loadAndRunBodyPix();
+    });
+</script>
+
+
+
+
+<!--<script type="module" src="scripts.js"></script>-->
 
 </body>
 </html>
