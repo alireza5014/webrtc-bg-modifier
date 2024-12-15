@@ -70,11 +70,9 @@
             // Process each frame
             const processFrame = async () => {
                 const segmentation = await net.segmentPerson(videoElement,{
-                    flipHorizontal: true, // Adjust if the video is mirrored (for webcams)
-                    internalResolution: 'high', // Set resolution to 'high' for better accuracy
-                    segmentationThreshold: 0.5 ,// Confidence threshold for segmentation
-                    maxDetections: 1,                  // Limits how many people to detect at once, set to 1 for single person
-                    scoreThreshold: 0.5
+                    flipHorizontal: false,
+                    internalResolution: 'low',
+                    segmentationThreshold: 0.7
                 });
 
                 // Create an image mask from the segmentation
