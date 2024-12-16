@@ -5,10 +5,11 @@ const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
 const stream = await navigator.mediaDevices.getUserMedia({
     video: isMobile ? {
-        width: {ideal: 360, max: 480},   // Ideal width for mobile (480p or 360p)
-        height: {ideal: 480, max: 480},  // Ideal height for mobile (480p)
-        frameRate: {max: 24},            // Reduce frame rate to 24 fps for performance
-        facingMode: "facing",
+        width: { ideal: 640, max: 640 },   // Ideal width for mobile (480p or 360p)
+        height: { ideal: 480, max: 480 },  // Ideal height for mobile (480p)
+        frameRate: { max: 24 },            // Max frame rate for better performance
+        facingMode: "user",         // Use the selfie camera
+        aspectRatio: { ideal: 1.33 },
     } : true,
 });
 outputVideo.srcObject = stream
