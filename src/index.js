@@ -100,14 +100,14 @@ class WebrtcBgModifier {
 
         const {videoWidth: width, videoHeight: height} = this.videoInfo;
         // this.ctx.clearRect(0, 0, width, height);
-        this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
+        // this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
         this.ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         this.ctx.globalCompositeOperation = 'source-out';
         this.ctx.drawImage(this.getBackgroundImage() ? this.getBackgroundImage() : this.videoElement, 0, 0, width, height);
         this.ctx.globalCompositeOperation = 'destination-atop';
 
-        this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
-        this.ctx.drawImage(results.image, 0, 0, width, height);
+        // this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
+        // this.ctx.drawImage(results.image, 0, 0, width, height);
 
     }
 
