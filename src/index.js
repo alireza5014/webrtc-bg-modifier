@@ -99,15 +99,21 @@ class WebrtcBgModifier {
     applyBackgroundImage(results) {
 
         const {videoWidth: width, videoHeight: height} = this.videoInfo;
+        // Check if segmentationMask and background are required to be drawn
+        if (!results.segmentationMask || !this.getBackgroundImage() && !this.videoElement) {
+            return; // No background or segmentation to apply, return early
+        }
         // this.ctx.clearRect(0, 0, width, height);
         // this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
         this.ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         this.ctx.globalCompositeOperation = 'source-out';
+
         this.ctx.drawImage(this.getBackgroundImage() ? this.getBackgroundImage() : this.videoElement, 0, 0, width, height);
         this.ctx.globalCompositeOperation = 'destination-atop';
 
+
         // this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
-        // this.ctx.drawImage(results.image, 0, 0, width, height);
+        this.ctx.drawImage(results.image, 0, 0, width, height);
 
     }
 
