@@ -32,8 +32,6 @@ class WebrtcBgModifier {
 
     setBrightness(value) {
         this.brightness = +value;
-        alert(value)
-
         return this;
     }
 
