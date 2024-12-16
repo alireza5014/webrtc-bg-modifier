@@ -1,20 +1,23 @@
 let bgUrl = null
 let newStream = null
 const outputVideo = document.getElementById("output");
+const isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
 const stream = await navigator.mediaDevices.getUserMedia({
-    video: {
-        width: { ideal: 360, max: 360 },   // Ideal width for mobile (480p or 360p)
-        height: { ideal: 480, max: 480 },  // Ideal height for mobile (480p)
-        frameRate: { max: 24 },            // Reduce frame rate to 24 fps for performance
-        // facingMode: "environment",
-    },
+    video: isMobile ? {
+        width: {ideal: 360, max: 480},   // Ideal width for mobile (480p or 360p)
+        height: {ideal: 480, max: 480},  // Ideal height for mobile (480p)
+        frameRate: {max: 24},            // Reduce frame rate to 24 fps for performance
+        facingMode: "facing",
+    } : true,
 });
 outputVideo.srcObject = stream
 outputVideo.play();
 import WebrtcBgModifier from "../dist/index.module.js";
+
 const bgModifier = new WebrtcBgModifier();
 document.getElementById('brightnessRange').addEventListener('change', async function () {
-    console.log(bgModifier,"bgModifier")
+    console.log(bgModifier, "bgModifier")
     const value = this.value;
     outputVideo.srcObject = await bgModifier.setBackgroundImage(bgUrl).setBrightness(value).setStream(stream).changeBackground();
 });
@@ -38,7 +41,6 @@ document.getElementById('grayScaleSwitch').addEventListener('change', async func
     outputVideo.srcObject = await bgModifier.setBackgroundImage(bgUrl).setGrayScale(value).setStream(stream).changeBackground();
 });
 // Get the webcam video stream
-
 
 
 window.changeBg = async function (url) {
