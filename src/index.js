@@ -238,8 +238,7 @@ class WebrtcBgModifier {
             await this.videoElement.play();
             // await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
             this.videoElement.addEventListener('loadedmetadata', () => {
-                const quality=this.isMobile?2:1
-                this.videoInfo = {videoWidth: this.videoElement.videoWidth/quality, videoHeight: this.videoElement.videoHeight/quality};
+                this.videoInfo = {videoWidth: this.videoElement.videoWidth, videoHeight: this.videoElement.videoHeight};
             });
             const {videoWidth: width, videoHeight: height} = this.videoInfo;
             this.canvasElement.width = width;
