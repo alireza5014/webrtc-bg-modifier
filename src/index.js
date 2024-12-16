@@ -104,7 +104,7 @@ class WebrtcBgModifier {
             return; // No background or segmentation to apply, return early
         }
         // this.ctx.clearRect(0, 0, width, height);
-        // this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
+        this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
         this.ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         this.ctx.globalCompositeOperation = 'source-out';
 
@@ -112,7 +112,7 @@ class WebrtcBgModifier {
         this.ctx.globalCompositeOperation = 'destination-atop';
 
 
-        // this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
+        this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
         this.ctx.drawImage(results.image, 0, 0, width, height);
 
     }
@@ -191,8 +191,11 @@ class WebrtcBgModifier {
                     this.videoElement.height = this.isMobile ? 360 : 720;
 
                     this.segmentation.setOptions({
+                        modelSelection: 1,  // 1 means use the full-body segmentation model
+                        outputStride: 16,
+                        segmentBody: true,
                         selfieMode: false,
-                        modelSelection: this.isMobile ? 0 : 1, // Full model for desktops
+                        // modelSelection: this.isMobile ? 0 : 1, // Full model for desktops
                     });
 
 
