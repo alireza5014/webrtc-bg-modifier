@@ -114,11 +114,16 @@ input:checked + .slider:before {
 
 /* Slider Container Styling */
 .slider-container {
-    margin: 20px auto;
+    margin: 5px auto;
     width: 300px;
+    display: flex;
+    gap: 10px;
     text-align: center;
-}
 
+}
+.slider-container label {
+    max-width: 140px;
+}
 /* Range Slider Styling */
 input[type="range"] {
     -webkit-appearance: none; /* Removes default styling for WebKit browsers */
@@ -170,10 +175,11 @@ input[type="range"]::-ms-thumb {
 }
 
 .optionBox{
-    margin-bottom: 20px;
+    flex-wrap: wrap;
     display: flex;
     align-content: center;
     align-items: center;
     justify-content: center;
     gap: 10px;
+    flex-direction: column;
 }

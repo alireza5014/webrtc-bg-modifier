@@ -27,6 +27,10 @@ document.getElementById('blurRange').addEventListener('change', async function (
     const value = this.value;
     outputVideo.srcObject = await bgModifier.setBackgroundImage(bgUrl).setBlur(value).setStream(stream).changeBackground();
 });
+document.getElementById('fpsRange').addEventListener('change', async function () {
+    const value = this.value;
+    outputVideo.srcObject = await bgModifier.setBackgroundImage(bgUrl).setFps(value).setStream(stream).changeBackground();
+});
 
 document.getElementById('grayScaleSwitch').addEventListener('change', async function () {
     const value = this.checked;
