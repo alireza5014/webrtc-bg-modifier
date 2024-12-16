@@ -13,6 +13,7 @@ class WebrtcBgModifier {
         this.grayScale = false;
         this.blur = 0;
         this.fps = 24;
+        this.videoInfo = {videoWidth:640,videoHeight:480};
         this.videoElement = document.createElement("video");
         this.canvasElement = document.createElement("canvas");
     }
@@ -91,7 +92,7 @@ class WebrtcBgModifier {
 
     // Handles background image replacement logic
     applyBackgroundImage(ctx, results) {
-        const {videoWidth: width, videoHeight: height} = this.videoElement;
+        const {videoWidth: width, videoHeight: height} = this.videoInfo;
         ctx.clearRect(0, 0, width, height);
         ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
 
@@ -113,7 +114,7 @@ class WebrtcBgModifier {
 
     // Applies a solid background color
     applyBackgroundColor(ctx, results) {
-        const {videoWidth: width, videoHeight: height} = this.videoElement;
+        const {videoWidth: width, videoHeight: height} = this.videoInfo;
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         ctx.globalCompositeOperation = 'source-out';
@@ -126,7 +127,7 @@ class WebrtcBgModifier {
 
     // Applies a grayscale effect
     applyGrayscale(ctx) {
-        const {videoWidth: width, videoHeight: height} = this.videoElement;
+        const {videoWidth: width, videoHeight: height} = this.videoInfo;
         const imageData = ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
 
@@ -183,7 +184,7 @@ class WebrtcBgModifier {
 
 
                     this.segmentation.onResults((results) => {
-                        console.log(results)
+                        // console.log(results)
                         if (this.color) {
                             this.applyBackgroundColor(ctx, results);
                             this.applyBrightnessAndContrast(ctx);
@@ -228,12 +229,15 @@ class WebrtcBgModifier {
         if (!this.videoElement.srcObject) {
             this.videoElement.srcObject = this.stream;
             this.videoElement.play();
-            await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
-
+            // await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
+            this.videoElement.addEventListener('loadedmetadata', () => {
+                console.log({videoWidth:this.videoElement.videoWidth,videoHeight:this.videoElement.videoHeight},"jjjjjjjj")
+                this.videoInfo={videoWidth:this.videoElement.videoWidth,videoHeight:this.videoElement.videoHeight};
+            });
         }
 
 
-        const {videoWidth: width, videoHeight: height} = this.videoElement;
+        const {videoWidth: width, videoHeight: height} = this.videoInfo;
         this.canvasElement.width = width;
         this.canvasElement.height = height;
         const ctx = this.canvasElement.getContext('2d');
