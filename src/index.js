@@ -7,14 +7,19 @@ class WebrtcBgModifier {
         this.backgroundImage = null;
         this.color = null;
         this.stream = null;
+        this.processing = false;
         this.brightness = 1;
         this.contrast = 1;
         this.grayScale = false;
         this.blur = 0;
+        this.fps = 24;
         this.videoElement = document.createElement("video");
         this.canvasElement = document.createElement("canvas");
     }
-
+    setFps(value) {
+        this.fps = value;
+        return this;
+    }
     // Setters for background properties
     setBackgroundImage2(value) {
         this.backgroundImage = value;
@@ -22,19 +27,23 @@ class WebrtcBgModifier {
     }
 
     getBackgroundImage() {
-        return  this.backgroundImage
-     }
+        return this.backgroundImage
+    }
+
     setBrightness(value) {
         this.brightness = +value;
+        alert(value)
+
         return this;
     }
 
     setContrast(value) {
-        this.contrast = +value;
+         this.contrast = +value;
         return this;
     }
+
     setBlur(value) {
-        this.blur = +value+"px";
+        this.blur = +value + "px";
         return this;
     }
 
@@ -66,7 +75,7 @@ class WebrtcBgModifier {
         }
     } = {}) {
         if (this.scriptLoaded) {
-            await  callback();
+            await callback();
             return;
         }
 
@@ -74,9 +83,9 @@ class WebrtcBgModifier {
         script.src = src;
         script.async = async;
         script.defer = defer;
-        script.onload =async () => {
+        script.onload = async () => {
             this.scriptLoaded = true;
-          await  callback();
+            await callback();
         };
         script.onerror = () => console.error(`Failed to load script: ${src}`);
         document.head.appendChild(script);
@@ -141,16 +150,17 @@ class WebrtcBgModifier {
                 {value: '#355F2E', alt: '#355F2E'},
             ],
             image: [
-                {value: 'img/1.jpg', alt: 'Image 1'},
-                {value: 'img/2.jpg', alt: 'Image 2'},
-                {value: 'img/3.jpg', alt: 'Image 3'},
+                {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/1.jpg', alt: 'Image 1'},
+                {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/2.jpg', alt: 'Image 2'},
+                {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/3.jpg', alt: 'Image 113'},
+                {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/4.jpg', alt: 'Image 113'},
             ],
         };
     }
 
     // Initializes the segmentation process
     async setupSegmentation(ctx) {
-       const backgroundImage= this.getBackgroundImage()
+        const backgroundImage = this.getBackgroundImage()
         await this.appendScriptToHead('https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js', {
             async: true,
             callback: async () => {
@@ -161,26 +171,15 @@ class WebrtcBgModifier {
                     });
                     const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
-                    if (isMobile) {
 
-                        this.videoElement.width = 480;
-                        this.videoElement.height = 360;
-                    } else {
+                    this.videoElement.width = isMobile ? 480 : 1280;
+                    this.videoElement.height = isMobile ? 360 : 720;
 
-
-                        this.videoElement.width = 1280;
-                        this.videoElement.height = 720;
-                    }
                     this.segmentation.setOptions({
-                        modelSelection: isMobile?0:1, // Full model for desktops
+                        selfieMode: false,
+                        modelSelection: isMobile ? 0 : 1, // Full model for desktops
                     });
 
-                    // this.segmentation.setOptions({
-                    //     selfieMode: true,
-                    //     modelSelection: 0,
-                    //
-                    //     // effect: "background"
-                    // });
 
                     this.segmentation.onResults((results) => {
                         console.log(results)
@@ -199,16 +198,15 @@ class WebrtcBgModifier {
                     });
 
 
-
-
-                    const targetFPS = 12;
                     let lastFrameTime = 0;
 
                     const processVideo = async () => {
-                        const now = performance.now();
-                        if (now - lastFrameTime >= 1000 / targetFPS) {
-                            lastFrameTime = now;
-                            await this.segmentation.send({ image: this.videoElement });
+                        if (this.processing) {
+                            const now = performance.now();
+                            if (now - lastFrameTime >= 1000 / this.fps) {
+                                lastFrameTime = now;
+                                await this.segmentation.send({image: this.videoElement});
+                            }
                         }
 
                         requestAnimationFrame(processVideo);
@@ -217,27 +215,8 @@ class WebrtcBgModifier {
                     await processVideo();
 
 
-
-                    // await this.segmentation.initialize();
-                    //
-                    // const processVideo = async () => {
-                    //     await this.segmentation.send({image: this.videoElement});
-                    //     requestAnimationFrame(processVideo);
-                    // };
-                    //
-                    // await processVideo();
                 }
-                // if (!this.camera) {
-                //     this.camera = new Camera(this.videoElement, {
-                //         onFrame: async () => {
-                //             await this.segmentation.send({ image: this.videoElement });
-                //         },
-                //         width: 1280,
-                //         height: 720,
-                //     });
-                // }
-                //
-                // this.camera.start();
+
             },
         });
     }
@@ -245,8 +224,7 @@ class WebrtcBgModifier {
     // Main function to modify the video stream
     async changeBackground() {
 
-        console.log(  this.url,'11111')
-        if(!this.videoElement.srcObject) {
+        if (!this.videoElement.srcObject) {
             this.videoElement.srcObject = this.stream;
             this.videoElement.play();
             await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
@@ -260,23 +238,25 @@ class WebrtcBgModifier {
         const ctx = this.canvasElement.getContext('2d');
 
         if (!this.url && !this.grayScale && this.brightness === 1 && this.contrast === 1 && !this.color && !this.blur) {
-
-                this.camera?.stop()
+            this.processing = false;
+            // this.camera?.stop()
 
             return this.stream; // No modifications, return original stream
         }
 
         let backgroundImage = null;
         if (this.url) {
-              backgroundImage = new Image();
+            backgroundImage = new Image();
+            backgroundImage.crossOrigin = 'anonymous';
             backgroundImage.src = this.url;
-             await new Promise((resolve) => (backgroundImage.onload = resolve));
-            this.setBackgroundImage2(backgroundImage)
+            await new Promise((resolve) => (backgroundImage.onload = resolve));
+            // this.setBackgroundImage2(backgroundImage)
 
         }
+        this.processing = true
         this.setBackgroundImage2(backgroundImage)
         await this.setupSegmentation(ctx);
-        return  this.canvasElement.captureStream(24);
+        return this.canvasElement.captureStream(this.fps);
     }
 }
 
