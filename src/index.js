@@ -154,6 +154,9 @@ class WebrtcBgModifier {
                 {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/2.jpg', alt: 'Image 2'},
                 {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/3.jpg', alt: 'Image 113'},
                 {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/4.jpg', alt: 'Image 113'},
+                {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/5.webp', alt: 'Image 113'},
+                {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/6.jpg', alt: 'Image 113'},
+                {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/7.webp', alt: 'Image 113'},
             ],
         };
     }
