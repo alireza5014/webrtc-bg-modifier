@@ -84,9 +84,7 @@ class WebrtcBgModifier {
 
     // Handles background image replacement logic
     applyBackgroundImage(ctx, results) {
-        // const {videoWidth: width, videoHeight: height} = this.videoElement;
-        const  width=480
-        const  height=360
+        const {videoWidth: width, videoHeight: height} = this.videoElement;
         ctx.clearRect(0, 0, width, height);
         ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
 
@@ -108,9 +106,7 @@ class WebrtcBgModifier {
 
     // Applies a solid background color
     applyBackgroundColor(ctx, results) {
-        // const {videoWidth: width, videoHeight: height} = this.videoElement;
-     const  width=480
-        const  height=360
+        const {videoWidth: width, videoHeight: height} = this.videoElement;
         ctx.clearRect(0, 0, width, height);
         ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         ctx.globalCompositeOperation = 'source-out';
