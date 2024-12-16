@@ -96,38 +96,37 @@ class WebrtcBgModifier {
     // Handles background image replacement logic
     applyBackgroundImage(results) {
 
-        const ctx = this.ctx;
         const {videoWidth: width, videoHeight: height} = this.videoInfo;
-        // ctx.clearRect(0, 0, width, height);
-        ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
-        ctx.drawImage(results.segmentationMask, 0, 0, width, height);
-        ctx.globalCompositeOperation = 'source-out';
-        ctx.drawImage(this.getBackgroundImage() ? this.getBackgroundImage() : this.videoElement, 0, 0, width, height);
-        ctx.globalCompositeOperation = 'destination-atop';
+        // this.ctx.clearRect(0, 0, width, height);
+        this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) blur(${this.blur})`;
+        this.ctx.drawImage(results.segmentationMask, 0, 0, width, height);
+        this.ctx.globalCompositeOperation = 'source-out';
+        this.ctx.drawImage(this.getBackgroundImage() ? this.getBackgroundImage() : this.videoElement, 0, 0, width, height);
+        this.ctx.globalCompositeOperation = 'destination-atop';
 
-        ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
-        ctx.drawImage(results.image, 0, 0, width, height);
+        this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast})`
+        this.ctx.drawImage(results.image, 0, 0, width, height);
 
     }
 
     // Adjusts brightness and contrast for the video
     applyBrightnessAndContrast() {
         const ctx = this.ctx;
-        ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) `;
+        this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) `;
     }
 
     // Applies a solid background color
-    applyBackgroundColor( results) {
+    applyBackgroundColor(results) {
         const ctx = this.ctx;
 
         const {videoWidth: width, videoHeight: height} = this.videoInfo;
-        // ctx.clearRect(0, 0, width, height);
-        ctx.drawImage(results.segmentationMask, 0, 0, width, height);
-        ctx.globalCompositeOperation = 'source-out';
-        ctx.fillStyle = this.color;
-        ctx.fillRect(0, 0, width, height);
-        ctx.globalCompositeOperation = 'destination-atop';
-        ctx.drawImage(results.image, 0, 0, width, height);
+        // this.ctx.clearRect(0, 0, width, height);
+        this.ctx.drawImage(results.segmentationMask, 0, 0, width, height);
+        this.ctx.globalCompositeOperation = 'source-out';
+        this.ctx.fillStyle = this.color;
+        this.ctx.fillRect(0, 0, width, height);
+        this.ctx.globalCompositeOperation = 'destination-atop';
+        this.ctx.drawImage(results.image, 0, 0, width, height);
     }
 
 
@@ -135,7 +134,7 @@ class WebrtcBgModifier {
     applyGrayscale() {
         const ctx = this.ctx;
         const {videoWidth: width, videoHeight: height} = this.videoInfo;
-        const imageData = ctx.getImageData(0, 0, width, height);
+        const imageData = this.ctx.getImageData(0, 0, width, height);
         const data = imageData.data;
 
         for (let i = 0; i < data.length; i += 4) {
@@ -143,7 +142,7 @@ class WebrtcBgModifier {
             data[i] = data[i + 1] = data[i + 2] = avg;
         }
 
-        ctx.putImageData(imageData, 0, 0);
+        this.ctx.putImageData(imageData, 0, 0);
     }
 
     // Generates a list of available backgrounds
@@ -193,10 +192,10 @@ class WebrtcBgModifier {
                     this.segmentation.onResults((results) => {
                         // console.log(results)
                         if (this.color) {
-                            this.applyBackgroundColor(  results);
-                            this.applyBrightnessAndContrast( );
+                            this.applyBackgroundColor(results);
+                            this.applyBrightnessAndContrast();
                         } else {
-                            this.applyBackgroundImage(  results, backgroundImage);
+                            this.applyBackgroundImage(results, backgroundImage);
 
                         }
 
@@ -235,13 +234,9 @@ class WebrtcBgModifier {
 
         if (!this.videoElement.srcObject) {
             this.videoElement.srcObject = this.stream;
-            this.videoElement.play();
+            await this.videoElement.play();
             // await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
             this.videoElement.addEventListener('loadedmetadata', () => {
-                console.log({
-                    videoWidth: this.videoElement.videoWidth,
-                    videoHeight: this.videoElement.videoHeight
-                }, "jjjjjjjj")
                 this.videoInfo = {videoWidth: this.videoElement.videoWidth, videoHeight: this.videoElement.videoHeight};
             });
         }
@@ -264,13 +259,13 @@ class WebrtcBgModifier {
             backgroundImage = new Image();
             backgroundImage.crossOrigin = 'anonymous';
             backgroundImage.src = this.url;
-            await new Promise((resolve) => (backgroundImage.onload = resolve));
+            // await new Promise((resolve) => (backgroundImage.onload = resolve));
             // this.setBackgroundImage2(backgroundImage)
 
         }
         this.processing = true
         this.setBackgroundImage2(backgroundImage)
-        await this.setupSegmentation();
+          this.setupSegmentation();
         return this.canvasElement.captureStream(this.fps);
     }
 }
