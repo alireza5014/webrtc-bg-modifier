@@ -14,7 +14,9 @@ class WebrtcBgModifier {
         this.blur = 0;
         this.fps = 24;
         this.ctx = null;
-        this.videoInfo = {videoWidth: 100, videoHeight: 100};
+        this.isMobile = /Mobi|Android/i.test(navigator.userAgent);
+
+        this.videoInfo = {videoWidth: 640, videoHeight: 480};
         this.videoElement = document.createElement("video");
         this.canvasElement = document.createElement("canvas");
     }
@@ -177,15 +179,14 @@ class WebrtcBgModifier {
                         // locateFile: (file) => `/node_modules/@mediapipe/selfie_segmentation/${file}`,
                         locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`,
                     });
-                    const isMobile = /Mobi|Android/i.test(navigator.userAgent);
 
 
-                    this.videoElement.width = isMobile ? 480 : 1280;
-                    this.videoElement.height = isMobile ? 360 : 720;
+                    this.videoElement.width = this.isMobile ? 480 : 1280;
+                    this.videoElement.height = this.isMobile ? 360 : 720;
 
                     this.segmentation.setOptions({
                         selfieMode: false,
-                        modelSelection: isMobile ? 0 : 1, // Full model for desktops
+                        modelSelection: this.isMobile ? 0 : 1, // Full model for desktops
                     });
 
 
@@ -237,7 +238,8 @@ class WebrtcBgModifier {
             await this.videoElement.play();
             // await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
             this.videoElement.addEventListener('loadedmetadata', () => {
-                // this.videoInfo = {videoWidth: this.videoElement.videoWidth, videoHeight: this.videoElement.videoHeight};
+                const quality=this.isMobile?2:1
+                this.videoInfo = {videoWidth: this.videoElement.videoWidth/quality, videoHeight: this.videoElement.videoHeight/quality};
             });
             const {videoWidth: width, videoHeight: height} = this.videoInfo;
             this.canvasElement.width = width;
