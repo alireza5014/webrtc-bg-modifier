@@ -3,9 +3,10 @@ let newStream = null
 const outputVideo = document.getElementById("output");
 const stream = await navigator.mediaDevices.getUserMedia({
     video: {
-        width: { ideal: 640 },  // Lower resolution for mobile
-        height: { ideal: 480 },
-        frameRate: { max: 24 }
+        width: { ideal: 360, max: 360 },   // Ideal width for mobile (480p or 360p)
+        height: { ideal: 480, max: 480 },  // Ideal height for mobile (480p)
+        frameRate: { max: 24 },            // Reduce frame rate to 24 fps for performance
+        facingMode: "environment",
     },
 });
 outputVideo.srcObject = stream
