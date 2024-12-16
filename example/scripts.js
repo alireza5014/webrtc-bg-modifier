@@ -6,7 +6,7 @@ const stream = await navigator.mediaDevices.getUserMedia({
         width: { ideal: 360, max: 360 },   // Ideal width for mobile (480p or 360p)
         height: { ideal: 480, max: 480 },  // Ideal height for mobile (480p)
         frameRate: { max: 24 },            // Reduce frame rate to 24 fps for performance
-        facingMode: "environment",
+        // facingMode: "environment",
     },
 });
 outputVideo.srcObject = stream
