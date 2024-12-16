@@ -14,7 +14,7 @@ class WebrtcBgModifier {
         this.blur = 0;
         this.fps = 24;
         this.ctx = null;
-        this.videoInfo = {videoWidth: 640, videoHeight: 480};
+        this.videoInfo = {videoWidth: 100, videoHeight: 100};
         this.videoElement = document.createElement("video");
         this.canvasElement = document.createElement("canvas");
     }
@@ -111,19 +111,19 @@ class WebrtcBgModifier {
 
     // Adjusts brightness and contrast for the video
     applyBrightnessAndContrast() {
-        const ctx = this.ctx;
         this.ctx.filter = `brightness(${this.brightness}) contrast(${this.contrast}) `;
     }
 
     // Applies a solid background color
     applyBackgroundColor(results) {
-        const ctx = this.ctx;
 
         const {videoWidth: width, videoHeight: height} = this.videoInfo;
         // this.ctx.clearRect(0, 0, width, height);
         this.ctx.drawImage(results.segmentationMask, 0, 0, width, height);
         this.ctx.globalCompositeOperation = 'source-out';
-        this.ctx.fillStyle = this.color;
+        if (this.color !== this.ctx.fillStyle) {
+            this.ctx.fillStyle = this.color;
+        }
         this.ctx.fillRect(0, 0, width, height);
         this.ctx.globalCompositeOperation = 'destination-atop';
         this.ctx.drawImage(results.image, 0, 0, width, height);
@@ -149,10 +149,10 @@ class WebrtcBgModifier {
     backgroundList() {
         return {
             color: [
-                {value: '#F9C0AB', alt: '#F9C0AB'},
-                {value: '#F4E0AF', alt: '#F4E0AF'},
-                {value: '#A8CD89', alt: '#A8CD89'},
-                {value: '#355F2E', alt: '#355F2E'},
+                {value: '#f9c0ab', alt: '#F9C0AB'},
+                {value: '#f4e0af', alt: '#F4E0AF'},
+                {value: '#a8cd89', alt: '#A8CD89'},
+                {value: '#355f2e', alt: '#355F2E'},
             ],
             image: [
                 {value: 'https://alireza5014.github.io/webrtc-bg-modifier/example/img/1.jpg', alt: 'Image 1'},
@@ -237,20 +237,17 @@ class WebrtcBgModifier {
             await this.videoElement.play();
             // await new Promise((resolve) => (this.videoElement.onloadeddata = resolve));
             this.videoElement.addEventListener('loadedmetadata', () => {
-                this.videoInfo = {videoWidth: this.videoElement.videoWidth, videoHeight: this.videoElement.videoHeight};
+                // this.videoInfo = {videoWidth: this.videoElement.videoWidth, videoHeight: this.videoElement.videoHeight};
             });
+            const {videoWidth: width, videoHeight: height} = this.videoInfo;
+            this.canvasElement.width = width;
+            this.canvasElement.height = height;
+            this.ctx = this.canvasElement.getContext('2d');
         }
 
 
-        const {videoWidth: width, videoHeight: height} = this.videoInfo;
-        this.canvasElement.width = width;
-        this.canvasElement.height = height;
-        this.ctx = this.canvasElement.getContext('2d');
-
         if (!this.url && !this.grayScale && this.brightness === 1 && this.contrast === 1 && !this.color && !this.blur) {
             this.processing = false;
-            // this.camera?.stop()
-
             return this.stream; // No modifications, return original stream
         }
 
@@ -260,12 +257,11 @@ class WebrtcBgModifier {
             backgroundImage.crossOrigin = 'anonymous';
             backgroundImage.src = this.url;
             // await new Promise((resolve) => (backgroundImage.onload = resolve));
-            // this.setBackgroundImage2(backgroundImage)
 
         }
         this.processing = true
         this.setBackgroundImage2(backgroundImage)
-          this.setupSegmentation();
+        this.setupSegmentation();
         return this.canvasElement.captureStream(this.fps);
     }
 }
