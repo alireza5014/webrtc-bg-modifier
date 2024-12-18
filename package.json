@@ -1,6 +1,6 @@
 {
   "name": "webrtc-bg-modifier",
-  "version": "1.0.12",
+  "version": "1.0.30",
   "source": "src/index.js",
   "main": "dist/index.js",
   "module": "dist/index.module.js",

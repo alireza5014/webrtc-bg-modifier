@@ -30,6 +30,14 @@ h1 {
     height: 80px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+#bg-list .items {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap:10px;
+    flex-wrap: wrap;
+;
+}
 #bg-list {
     display: flex;
     justify-content: center;
@@ -43,9 +51,10 @@ h1 {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-#bg-list div:hover {
+#bg-list .items div:hover {
     transform: scale(1.05);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background-color: transparent;;
 }
 
 #bg-list img {
